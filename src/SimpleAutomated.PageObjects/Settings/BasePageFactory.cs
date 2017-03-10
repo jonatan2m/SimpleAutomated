@@ -29,7 +29,8 @@ namespace SimpleAutomated.PageObjects.Settings
             this.driver = driver;
             var timeout = TimeSpan.FromSeconds(timeoutElementInSeconds);            
             ElementLocator = new RetryingElementLocator(driver, timeout);            
-            SetWindowOptions(options ?? new WindowOptions());
+            
+            //SetWindowOptions(options ?? new WindowOptions());
         }
 
         protected void SetWindowOptions(WindowOptions options)

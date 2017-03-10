@@ -17,7 +17,9 @@ namespace SimpleAutomated.Drivers
             switch (driveType)
             {
                 case AvailableDrivers.chrome :
-                    instance = new ChromeDriver(fileInfo.Directory.FullName);
+                    ChromeOptions op = new ChromeOptions();
+                    op.AddArgument("--start-maximized");
+                    instance = new ChromeDriver(fileInfo.Directory.FullName, op);
                     break;
                 case AvailableDrivers.phantomjs:
                     instance = new PhantomJSDriver(fileInfo.Directory.FullName);
