@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Support.PageObjects;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace SimpleAutomated.PageObjects.Settings
     public abstract class BasePageFactory
     {
         protected IWebDriver driver;
+        TimeSpan timeout;
        
         /// <summary>
         /// AjaxElementLocatorFactory 
@@ -27,8 +29,8 @@ namespace SimpleAutomated.PageObjects.Settings
             int timeoutElementInSeconds, WindowOptions options = null)
         {
             this.driver = driver;
-            var timeout = TimeSpan.FromSeconds(timeoutElementInSeconds);            
-            ElementLocator = new RetryingElementLocator(driver, timeout);            
+            this.timeout = TimeSpan.FromSeconds(timeoutElementInSeconds);            
+            ElementLocator = new RetryingElementLocator(driver, this.timeout);            
             
             //SetWindowOptions(options ?? new WindowOptions());
         }
@@ -42,7 +44,30 @@ namespace SimpleAutomated.PageObjects.Settings
         {
             driver.Manage()
                 .Timeouts()
-                .ImplicitlyWait(TimeSpan.FromSeconds(seconds));
+                .ImplicitWait = TimeSpan.FromSeconds(seconds);
+        }
+
+        /// <summary>
+        /// Wait Element Disappears of the page. Normaly is a overlay during the Ajax call
+        /// </summary>
+        /// <param name="className"></param>
+        protected void WaitForJqueryAjaxReady(string className)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, timeout);
+            wait.Until(driver =>
+            {
+                bool isAjaxFinished = (bool)((IJavaScriptExecutor)driver).
+                    ExecuteScript("return jQuery.active == 0");
+                try
+                {
+                    driver.FindElement(By.ClassName(className));
+                    return false;
+                }
+                catch (NoSuchElementException)
+                {
+                    return isAjaxFinished;
+                }
+            });
         }
         
         public string GetPageTitle()
